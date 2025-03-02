@@ -1,0 +1,20 @@
+[project]
+name = "ads4gpts-langgraph-agent"
+version = "0.1.0"
+description = "ADS4GPTs LangGraph agent. Integrate Ads into AI Agents and monetize."
+authors = [
+    {name = "ads4gpts"}
+]
+license = {text = "GNU AGPLv3"}
+readme = "README.md"
+requires-python = ">=3.12,<4.0"
+dependencies = [
+    "langgraph (>=0.3.1,<0.4.0)",
+    "ads4gpts-langchain (>=0.1.6,<0.2.0)",
+    "langgraph-cli (>=0.1.74,<0.2.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
