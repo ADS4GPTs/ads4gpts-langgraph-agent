@@ -63,7 +63,11 @@ def create_llm(provider: str, model_type: str, api_key: str):
 def create_advertiser_agent(provider: str, api_key: str, ads4gpts_api_key: str):
     logger.info(f"Creating advertiser agent for provider: {provider}")
     advertiser_llm = create_llm(provider, "advertiser", api_key)
-    toolkit = Ads4gptsToolkit(ads4gpts_api_key=ads4gpts_api_key).get_tools()
+    toolkit = Ads4gptsToolkit(
+        base_url="https://ads-api-dev.onrender.com/",
+        ads_endpoint="api/v1/ads",
+        ads4gpts_api_key=ads4gpts_api_key,
+    ).get_tools()
     return ads4gpts_advertiser_prompt | advertiser_llm.bind_tools(toolkit)
 
 
@@ -71,17 +75,3 @@ def create_render_agent(provider: str, api_key: str):
     logger.info(f"Creating render agent for provider: {provider}")
     render_llm = create_llm(provider, "render", api_key)
     return ads4gpts_render_prompt | render_llm
-
-
-# Example usage
-if __name__ == "__main__":
-    provider = get_from_dict_or_env({}, "PROVIDER", "PROVIDER")
-    api_key = get_from_dict_or_env(
-        {}, f"{provider.upper()}_API_KEY", f"{provider.upper()}_API_KEY"
-    )
-    ads4gpts_api_key = get_from_dict_or_env({}, "ADS4GPTS_API_KEY", "ADS4GPTS_API_KEY")
-
-    logger.info(f"Starting agents creation with provider: {provider}")
-    advertiser_agent = create_advertiser_agent(provider, api_key, ads4gpts_api_key)
-    render_agent = create_render_agent(provider, api_key)
-    logger.info("Agents created successfully")
