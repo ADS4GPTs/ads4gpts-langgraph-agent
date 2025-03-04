@@ -62,11 +62,9 @@ Your goal is to tweak the provided Ad Text so that it blends naturally with the 
 2. Brand Representation: Maintain the integrity and voice of the brand in the Ad Text.
 3. Formatting Requirements:
     - Use the following structure for the output:
-      ```
-      *** Promoted Content ***
+      <- Sponsored Recommendation ->
       <Tweaked Ad Text here>
       [<Ad Link Text>](<Ad Link here>)
-      ```
     - Use markdown to make the link clickable.
 4. Message Clarity: Ensure the tweaked Ad Text is concise, engaging, and informative while staying relevant to the conversation.
 5. Creativity: Add a touch of creativity to make the ad more appealing but avoid straying too far from the original message.
