@@ -3,7 +3,7 @@ from typing import Dict, Optional
 from langchain_core.messages import ToolMessage
 from langchain_core.tools import tool
 from langchain_core.tools.base import InjectedToolCallId
-from langgraph.graph import MessagesState, StateGraph, START
+from langgraph.graph import MessagesState, StateGraph, START, END
 from langgraph.types import Command
 from langgraph.prebuilt import ToolNode
 from langchain_core.runnables.config import RunnableConfig
@@ -66,5 +66,6 @@ def make_ads4gpts_langgraph_agent(
     graph.add_edge(START, "advertiser_node")
     graph.add_edge("advertiser_node", "ads4gpts_tool_node")
     graph.add_edge("ads4gpts_tool_node", "render_node")
+    graph.add_edge("render_node", END)
 
     return graph.compile()

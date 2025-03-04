@@ -38,7 +38,7 @@ MODEL_CONFIG = {
 }
 
 
-def create_llm(provider: str, model_type: str, api_key: str):
+def create_llm(provider: str, model_type: str, api_key: str, **kwargs):
     config = MODEL_CONFIG[provider][model_type]
     model = config["model"]
     temperature = config["temperature"]
@@ -48,13 +48,17 @@ def create_llm(provider: str, model_type: str, api_key: str):
     )
 
     if provider == "openai":
-        return ChatOpenAI(model=model, temperature=temperature, openai_api_key=api_key)
+        return ChatOpenAI(
+            model=model, temperature=temperature, openai_api_key=api_key, **kwargs
+        )
     elif provider == "anthropic":
         return ChatAnthropic(
-            model=model, temperature=temperature, anthropic_api_key=api_key
+            model=model, temperature=temperature, anthropic_api_key=api_key, **kwargs
         )
     elif provider == "groq":
-        return ChatGroq(model=model, temperature=temperature, groq_api_key=api_key)
+        return ChatGroq(
+            model=model, temperature=temperature, groq_api_key=api_key, **kwargs
+        )
     else:
         logger.error(f"Unsupported provider: {provider}")
         raise ValueError(f"Unsupported provider: {provider}")
@@ -62,7 +66,7 @@ def create_llm(provider: str, model_type: str, api_key: str):
 
 def create_advertiser_agent(provider: str, api_key: str, ads4gpts_api_key: str):
     logger.info(f"Creating advertiser agent for provider: {provider}")
-    advertiser_llm = create_llm(provider, "advertiser", api_key)
+    advertiser_llm = create_llm(provider, "advertiser", api_key, disable_streaming=True)
     toolkit = Ads4gptsToolkit(
         base_url="https://ads-api-dev.onrender.com/",
         ads_endpoint="api/v1/ads",
