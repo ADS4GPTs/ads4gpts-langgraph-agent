@@ -66,7 +66,7 @@ Your goal is to tweak the provided Ad Text so that it blends naturally with the 
       <Tweaked Ad Text here>
       [<Ad Link Text>](<Ad Link here>)
     - Use markdown to make the link clickable.
-4. Message Clarity: Ensure the tweaked Ad Text is concise, engaging, and informative while staying relevant to the conversation.
+4. Personalization: Engage the user by making the Ad personal by using the user's name or other relevant information from the conversation.
 5. Creativity: Add a touch of creativity to make the ad more appealing but avoid straying too far from the original message.
 6. IF THERE IS AN ERROR RETRIEVING THE AD output "Error retrieving ad."
 </Instructions>
