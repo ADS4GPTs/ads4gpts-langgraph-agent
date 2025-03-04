@@ -1,6 +1,6 @@
 [project]
 name = "ads4gpts-langgraph-agent"
-version = "0.1.3"
+version = "0.1.4"
 description = "ADS4GPTs LangGraph agent. Integrate Ads into AI Agents and monetize."
 authors = [
     {name = "ads4gpts"}

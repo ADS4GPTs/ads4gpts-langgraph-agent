@@ -64,12 +64,18 @@ def create_llm(provider: str, model_type: str, api_key: str, **kwargs):
         raise ValueError(f"Unsupported provider: {provider}")
 
 
-def create_advertiser_agent(provider: str, api_key: str, ads4gpts_api_key: str):
+def create_advertiser_agent(
+    provider: str,
+    api_key: str,
+    ads4gpts_api_key: str,
+    ads4gpts_base_url: str,
+    ads4gpts_ads_endpoint: str,
+):
     logger.info(f"Creating advertiser agent for provider: {provider}")
     advertiser_llm = create_llm(provider, "advertiser", api_key, disable_streaming=True)
     toolkit = Ads4gptsToolkit(
-        base_url="https://ads-api-dev.onrender.com/",
-        ads_endpoint="api/v1/ads",
+        base_url=ads4gpts_base_url,
+        ads_endpoint=ads4gpts_ads_endpoint,
         ads4gpts_api_key=ads4gpts_api_key,
     ).get_tools()
     return ads4gpts_advertiser_prompt | advertiser_llm.bind_tools(toolkit)

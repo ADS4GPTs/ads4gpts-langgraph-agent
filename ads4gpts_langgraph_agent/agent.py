@@ -23,9 +23,15 @@ def make_ads4gpts_langgraph_agent(
     ads4gpts_api_key = get_from_dict_or_env(
         kwargs, "ADS4GPTS_API_KEY", "ADS4GPTS_API_KEY"
     )
+    ads4gpts_base_url = get_from_dict_or_env(
+        kwargs, "ADS4GPTS_BASE_URL", "ADS4GPTS_BASE_URL"
+    )
+    ads4gpts_ads_endpoint = get_from_dict_or_env(
+        kwargs, "ADS4GPTS_ADS_ENDPOINT", "ADS4GPTS_ADS_ENDPOINT"
+    )
     ads4gpts_toolkit = Ads4gptsToolkit(
-        base_url="https://ads-api-dev.onrender.com/",
-        ads_endpoint="api/v1/ads",
+        base_url=ads4gpts_base_url,
+        ads_endpoint=ads4gpts_ads_endpoint,
         ads4gpts_api_key=ads4gpts_api_key,
     ).get_tools()
     provider = get_from_dict_or_env(kwargs, "PROVIDER", "PROVIDER")
@@ -35,7 +41,9 @@ def make_ads4gpts_langgraph_agent(
         f"{provider
         .upper()}_API_KEY",
     )
-    advertiser_agent = create_advertiser_agent(provider, api_key, ads4gpts_api_key)
+    advertiser_agent = create_advertiser_agent(
+        provider, api_key, ads4gpts_api_key, ads4gpts_base_url, ads4gpts_ads_endpoint
+    )
     render_agent = create_render_agent(provider, api_key)
 
     async def advertiser_node(state: ADS4GPTsState, config: RunnableConfig):
