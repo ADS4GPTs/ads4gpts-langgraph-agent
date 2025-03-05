@@ -8,18 +8,20 @@ from langgraph.graph import StateGraph, START, END
 from langchain_core.runnables.config import RunnableConfig
 from langgraph.types import Command
 from langgraph.checkpoint.memory import MemorySaver
+from langgraph.prebuilt import ToolNode
 
 memory = MemorySaver()
 
 from ads4gpts_langgraph_agent import make_ads4gpts_langgraph_agent
+from ads4gpts_langgraph_agent.tools import make_handoff_tool
 
 from ads4gpts_langchain.utils import get_from_dict_or_env
 
 from llms import (
-    supervisor_agent,
-    chat_agent,
-    SupervisorDecision,
-    SupervisorDecisionEnum,
+    supervisor_llm,
+    supervisor_prompt,
+    chat_prompt,
+    chat_llm,
 )
 
 # Configure logging
@@ -43,9 +45,31 @@ class ConfigSchema(TypedDict):
     user_id: str
 
 
-async def supervisor_node(
-    state: State, config: RunnableConfig
-) -> Command[Literal["chat_agent_node", "ads4gpts_node", END]]:
+ads4gpts_agent = make_ads4gpts_langgraph_agent()
+ads4gpts_tool = make_handoff_tool(agent_name="ads4gpts_agent")
+
+chat_agent = chat_prompt | chat_llm
+
+
+async def chat_agent_node(state: State, config: RunnableConfig):
+    """A simple chat node that returns a static response."""
+    return {"messages": ["Static response from chat agent."]}
+
+
+chat_builder = StateGraph(State, ConfigSchema)
+chat_builder.add_node("chat_agent_node", chat_agent_node)
+chat_builder.add_edge(START, "chat_agent_node")
+chat_builder.add_edge("chat_agent_node", END)
+chat_agent = chat_builder.compile()
+chat_tool = make_handoff_tool(agent_name="chat_agent")
+
+tools = [ads4gpts_tool, chat_tool]
+tool_node = ToolNode(tools)
+
+supervisor_agent = supervisor_prompt | supervisor_llm.bind_tools(tools)
+
+
+async def supervisor_node(state: State, config: RunnableConfig):
     """A simple supervisor node that returns a decision."""
     logger.info("Supervisor node invoked.")
     supervisor_response = await supervisor_agent.ainvoke(
@@ -53,43 +77,45 @@ async def supervisor_node(
             "messages": state["messages"],
         }
     )
-    return Command(
-        goto=supervisor_response.decision.value,
-        update={"messages": [AIMessage("Routing to " + supervisor_response.decision)]},
-    )
+    return {"messages": [supervisor_response]}
 
 
-async def chat_agent_node(state: State, config: RunnableConfig):
-    """A simple chat node that returns a message."""
-    logger.info("Chat node invoked.")
-    chat_agent_response = await chat_agent.ainvoke(
-        {
-            "messages": state["messages"],
-        }
-    )
-    return {"messages": [chat_agent_response]}
+def supervisor_edge(state: State, config: RunnableConfig) -> Literal["tool_node", END]:
+    """A simple edge function that returns a decision."""
+    if state["messages"][-1].tool_calls:
+        return "tool_node"
+    else:
+        return END
 
 
-# def supervisor_edge(
+# async def supervisor_node(
 #     state: State, config: RunnableConfig
-# ) -> Literal["chat_agent_node", "ads4gpts_node", "__end__"]:
-#     """A simple edge function that returns a decision."""
-#     logger.info("Supervisor edge invoked.")
-#     last_message = state["messages"][-1]
-#     print(last_message)
-#     if last_message.decision == SupervisorDecisionEnum.CHAT:
-#         return "chat_agent_node"
-#     elif last_message.decision == SupervisorDecisionEnum.ADS:
-#         return "ads4gpts_node"
+# ) -> Command[Literal["tool_node", END]]:
+#     """A simple supervisor node that returns a decision."""
+#     logger.info("Supervisor node invoked.")
+#     supervisor_response = await supervisor_agent.ainvoke(
+#         {
+#             "messages": state["messages"],
+#         }
+#     )
+#     if supervisor_response.tool_calls:
+#         return Command(
+#             goto="tool_node",
+#             update={"messages": [supervisor_response]},
+#             tool_calls=supervisor_response.tool_calls,
+#         )
 #     else:
-#         return "__end__"
+#         return Command(
+#             goto=END,
+#             update={"messages": [supervisor_response]},
+#         )
 
 
 graph_builder = StateGraph(State, ConfigSchema)
-graph_builder.add_node("supervisor_node", supervisor_node)
-graph_builder.add_node("chat_agent_node", chat_agent_node)
-graph_builder.add_node("ads4gpts_node", make_ads4gpts_langgraph_agent())
-graph_builder.add_edge(START, "supervisor_node")
-graph_builder.add_edge("chat_agent_node", "supervisor_node")
-graph_builder.add_edge("ads4gpts_node", "supervisor_node")
-graph = graph_builder.compile(checkpointer=memory)
+graph_builder.add_node("supervisor", supervisor_node)
+graph_builder.add_node("tool_node", tool_node)
+graph_builder.add_node("chat_agent", chat_agent)
+graph_builder.add_node("ads4gpts_agent", ads4gpts_agent)
+graph_builder.add_edge(START, "supervisor")
+graph_builder.add_conditional_edges("supervisor", supervisor_edge)
+graph = graph_builder.compile()

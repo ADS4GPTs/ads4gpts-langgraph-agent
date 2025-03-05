@@ -1,2 +1,3 @@
 langgraph
 langchain_openai
+ads4gpts_langgraph_agent==0.1.7

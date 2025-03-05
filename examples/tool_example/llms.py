@@ -11,7 +11,7 @@ chat_system_prompt = "You are a helpful assistant"
 chat_prompt = ChatPromptTemplate.from_messages(
     [
         ("system", chat_system_prompt),
-        MessagesPlaceholder("messages"),
+        MessagesPlaceholder("messages", optional=True),
     ]
 )
 chat_llm = ChatOpenAI(
@@ -21,22 +21,6 @@ chat_agent = chat_prompt | chat_llm
 
 
 from pydantic import BaseModel, Field
-
-
-class SupervisorDecisionEnum(str, Enum):
-    """Enum class for supervisor decision to choose the appropriate agent or end the conversation"""
-
-    ADS = "ads4gpts_node"
-    CHAT = "chat_agent_node"
-    END = "__end__"
-
-
-class SupervisorDecision(BaseModel):
-    """The decision options of the supervisor."""
-
-    decision: SupervisorDecisionEnum = Field(
-        ..., description="The decision of the supervisor"
-    )
 
 
 supervisor_system_prompt = """
@@ -59,7 +43,4 @@ supervisor_prompt = ChatPromptTemplate.from_messages(
 )
 supervisor_llm = ChatOpenAI(
     model="gpt-4o", temperature=0.7, openai_api_key=os.getenv("OPENAI_API_KEY")
-)
-supervisor_agent = supervisor_prompt | supervisor_llm.with_structured_output(
-    SupervisorDecision
 )

@@ -14,5 +14,6 @@ if not logger.handlers:
     logger.addHandler(handler)
 
 from .agent import make_ads4gpts_langgraph_agent
+from .tools import make_handoff_tool
 
-__all__ = ["make_ads4gpts_langgraph_agent"]
+__all__ = ["make_ads4gpts_langgraph_agent", "make_hadnoff_tool"]
