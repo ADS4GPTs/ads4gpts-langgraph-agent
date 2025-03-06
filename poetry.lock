@@ -2,14 +2,14 @@
 
 [[package]]
 name = "ads4gpts-langchain"
-version = "0.1.6"
+version = "0.1.7"
 description = "Ads for AI applications. Enabling the Freemium model for the AI era."
 optional = false
 python-versions = "<4.0,>=3.11"
 groups = ["main"]
 files = [
-    {file = "ads4gpts_langchain-0.1.6-py3-none-any.whl", hash = "sha256:529153dffa0a1bd4f092e264233dab971aee6bf603d4101308deaff487c17de7"},
-    {file = "ads4gpts_langchain-0.1.6.tar.gz", hash = "sha256:399e26500d24036bd26360a95394ed2c442479e378320a0fa478fd164c0370e6"},
+    {file = "ads4gpts_langchain-0.1.7-py3-none-any.whl", hash = "sha256:07ffef6da9dc77a757f252bd969401822329bf8a3a39530030b4669b19c4d884"},
+    {file = "ads4gpts_langchain-0.1.7.tar.gz", hash = "sha256:8b93f78509e84276dce3226434115efaf4923e36f836c321e62617a488b53192"},
 ]
 
 [[package]]
@@ -1510,4 +1510,4 @@ cffi = ["cffi (>=1.11)"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.12,<4.0"
-content-hash = "23fded97f10cf4ab09ac720055d7e77b522f59fc535db8e030a2e4486b08ca76"
+content-hash = "4ae52d1630ec8cc4ade1716da93e5a0e04b3e26af5702383b10bb42a0e56aa4a"
